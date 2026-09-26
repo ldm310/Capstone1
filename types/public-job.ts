@@ -1,6 +1,7 @@
 import type { RoleId } from "./career";
 export interface PublicJob {
   id: string;
+  skills?: string[];
   company: string;
   title: string;
   category: RoleId;

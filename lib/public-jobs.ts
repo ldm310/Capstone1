@@ -1,3 +1,4 @@
+import { patterns } from "@/lib/skill-patterns";
 import type { PublicJob } from "@/types/public-job";
 const boards = [
   { id: "zoyi", company: "채널코퍼레이션" },
@@ -44,6 +45,17 @@ function normalize(
     typeof raw.createdAt === "number" ? new Date(raw.createdAt) : null;
   return {
     id: `${board.id}:${raw.id}`,
+    skills: Object.entries(patterns)
+      .filter(([, regex]) =>
+        regex.test(
+          [
+            string(raw.descriptionPlain),
+            string(raw.additionalPlain),
+            JSON.stringify(raw.lists ?? []),
+          ].join("\n"),
+        ),
+      )
+      .map(([name]) => name),
     company: board.company,
     title,
     category,

@@ -13,6 +13,8 @@ test("onboarding preserves role and demo connections", async ({ page }) => {
   await page
     .getByRole("link", { name: "내 역량 분석 시작하기", exact: true })
     .click();
+  await expect(page).toHaveURL(/career/);
+  await page.goto("/onboarding");
   await page.getByRole("button", { name: /AI·머신러닝 엔지니어/ }).click();
   await page.getByRole("button", { name: "다음 단계", exact: true }).click();
   await page.getByRole("button", { name: "체험 연결" }).first().click();

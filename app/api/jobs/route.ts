@@ -4,6 +4,7 @@ export async function GET(request: Request) {
   const offset = Number(params.get("offset") ?? 0),
     limit = Number(params.get("limit") ?? 4),
     role = params.get("role") ?? "all";
+  const query = (params.get("q") ?? "").trim().toLowerCase().slice(0, 200);
   if (
     !Number.isInteger(offset) ||
     offset < 0 ||
@@ -17,7 +18,9 @@ export async function GET(request: Request) {
   try {
     const feed = await getPublicJobs();
     const filtered = feed.jobs.filter(
-      (job) => role === "all" || job.category === role,
+      (job) =>
+        (role === "all" || job.category === role) &&
+        `${job.company} ${job.title}`.toLowerCase().includes(query),
     );
     return Response.json(
       {

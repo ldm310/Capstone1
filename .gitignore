@@ -44,3 +44,6 @@ next-env.d.ts
 /work/
 /playwright-report/
 /test-results/
+
+# Private server data
+/.career-data/

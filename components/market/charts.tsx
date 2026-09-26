@@ -69,7 +69,7 @@ export function MarketSkillChart({ skills }: { skills: MarketSkill[] }) {
             {skills.map((s, i) => (
               <Cell
                 key={s.skillId}
-                fill={i === 0 ? "#398e59" : i < 3 ? "#85bd97" : "#c5dfce"}
+                fill={i === 0 ? "#426d90" : i < 3 ? "#8babc4" : "#c7d8e5"}
               />
             ))}
             <LabelList
@@ -93,7 +93,7 @@ export function SkillTrendChart({
   names: string[];
 }) {
   const reduced = useReducedMotion();
-  const colors = ["#248653", "#8aad70", "#a4beb4"];
+  const colors = ["#315a7b", "#779cb9", "#9eabb8"];
   return (
     <>
       <div role="img" aria-label={`${names.join(", ")} 월별 수요 추이`}>

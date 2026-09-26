@@ -33,7 +33,7 @@ test("sky intro enters with keyboard, restores focus, remembers and replays", as
   await page
     .getByRole("link", { name: "내 역량 분석 시작하기", exact: true })
     .click();
-  await expect(page).toHaveURL(/onboarding/);
+  await expect(page).toHaveURL(/career/);
 });
 test("mouse parallax, animated reveal and mobile tap", async ({ page }) => {
   await mockPublicJobs(page);

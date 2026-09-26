@@ -25,7 +25,6 @@ import { SummaryCard } from "./summary-card";
 import { EvidenceOverview } from "./evidence-overview";
 import { SkillGapCard } from "./skill-gap-card";
 import { MarketSkillChart } from "@/components/market/charts";
-import { ActionCard } from "@/components/agent/action-card";
 export function DashboardPage() {
   const { data, profile, evidence, updateProfile, notify } = useCareer();
   const [analyzing, setAnalyzing] = useState(false);
@@ -70,6 +69,24 @@ export function DashboardPage() {
           최근 분석 · {profile.analyzedAt.slice(0, 10).replaceAll("-", ".")}
         </span>
       </div>
+      <section className="next-action-focus">
+        <div>
+          <span className="live-label">지금 할 일 · 체험 추천</span>
+          <h2>{next.title}</h2>
+          <p>{next.description}</p>
+        </div>
+        <div>
+          <small>왜 이 활동부터 하나요?</small>
+          <p>
+            목표 직무에서 요구하지만 구현 근거가 부족한 역량을 프로젝트로 보완해
+            보세요.
+          </p>
+          <LinkButton href="/agent">
+            추천 활동 시작하기 <ArrowUpRight size={16} />
+          </LinkButton>
+          <p>완료 후 추가된 근거와 보완 역량의 변화를 확인하세요.</p>
+        </div>
+      </section>
       <div className="summary-grid">
         <SummaryCard
           label="근거가 확인된 역량"
@@ -122,7 +139,7 @@ export function DashboardPage() {
           <EvidenceOverview />
         </Panel>
       </div>
-      <div className="two-column">
+      <div className="dashboard-gap-panel">
         <Panel
           title="다음 성장을 위한 기회"
           subtitle="시장 수요를 기준으로 정리한 보완 우선순위"
@@ -136,7 +153,6 @@ export function DashboardPage() {
             <ArrowLink href="/agent">추천 활동 보기</ArrowLink>
           </div>
         </Panel>
-        <ActionCard action={next} compact />
       </div>
       <div className="dashboard-bottom-banner">
         <span className="icon-tile">

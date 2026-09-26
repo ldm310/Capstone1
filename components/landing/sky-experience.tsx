@@ -98,11 +98,8 @@ export function SkyExperience({ children }: { children: React.ReactNode }) {
         >
           <div className="intro-sky-photo" aria-hidden="true" />
           <div className="intro-atmosphere" aria-hidden="true" />
-          <button
-            ref={enterRef}
-            className="intro-enter"
-            aria-label="Career 홈페이지 열기"
-            onClick={enter}
+          <div
+            className="intro-scene"
             onPointerMove={(e) => {
               if (reduced || e.pointerType !== "mouse") return;
               const bounds = e.currentTarget.getBoundingClientRect();
@@ -135,7 +132,12 @@ export function SkyExperience({ children }: { children: React.ReactNode }) {
                 나의 기록에서 발견하는 다음 커리어
               </span>
             </motion.span>
-            <span className="intro-click">
+            <button
+              ref={enterRef}
+              className="intro-click"
+              aria-label="Career 홈페이지 열기"
+              onClick={enter}
+            >
               <span className="intro-click-link">
                 나의 Career 만나보기
                 <ArrowRight size={22} strokeWidth={1.6} aria-hidden="true" />
@@ -143,11 +145,11 @@ export function SkyExperience({ children }: { children: React.ReactNode }) {
               <span className="intro-keyboard">
                 Enter 키로도 시작할 수 있어요
               </span>
-            </span>
+            </button>
             <span className="intro-bottom">
               EXPERIENCE BECOMES POSSIBILITY <ArrowDown size={13} />
             </span>
-          </button>
+          </div>
         </div>
       )}
       {phase === "open" && (

@@ -27,7 +27,7 @@ export function Header() {
           <Link className="sign-in" href="/sign-in">
             로그인
           </Link>
-          <LinkButton href="/onboarding">
+          <LinkButton href="/career">
             시작하기 <ArrowUpRight size={15} />
           </LinkButton>
           <button

@@ -28,7 +28,7 @@ export function SkyHero({
           GitHub, 이력서, Notion의 기록에서 나만의 다음 방향을 찾습니다.
         </p>
         <div className="sky-hero-actions">
-          <LinkButton href="/onboarding">
+          <LinkButton href="/career">
             내 역량 분석 시작하기
             <ArrowRight size={17} />
           </LinkButton>
@@ -37,7 +37,9 @@ export function SkyHero({
             <ArrowUpRight size={17} />
           </LinkButton>
         </div>
-        <small>개인 역량 분석은 예시 데이터로 먼저 체험할 수 있어요.</small>
+        <small>
+          내 계정에서 실제 자료를 분석하거나, 아래 예시 화면을 먼저 둘러보세요.
+        </small>
       </div>
       <div className="sky-preview-grid">
         <a href="/market" className="sky-preview-card">

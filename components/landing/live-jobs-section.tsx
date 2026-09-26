@@ -8,10 +8,11 @@ import {
   RefreshCw,
   Search,
 } from "lucide-react";
-import type { PublicJobsResponse } from "@/types/public-job";
+import type { PublicJob, PublicJobsResponse } from "@/types/public-job";
 import { roleLabels } from "@/lib/korean";
 const storageKey = "career-twin:saved-public-jobs:v1";
 export function LiveJobsSection() {
+  const [savedCards, setSavedCards] = useState<PublicJob[]>([]);
   const [feed, setFeed] = useState<PublicJobsResponse | null>(null);
   const [role, setRole] = useState("all"),
     [savedOnly, setSavedOnly] = useState(false),
@@ -21,7 +22,7 @@ export function LiveJobsSection() {
     [error, setError] = useState(""),
     [message, setMessage] = useState("");
   const controller = useRef<AbortController | null>(null);
-  async function load(offset: number, selectedRole: string) {
+  async function load(offset: number, selectedRole: string, term = query) {
     controller.current?.abort();
     const current = new AbortController();
     controller.current = current;
@@ -29,7 +30,7 @@ export function LiveJobsSection() {
     setError("");
     try {
       const response = await fetch(
-        `/api/jobs?offset=${offset}&limit=4&role=${selectedRole}`,
+        `/api/jobs?offset=${offset}&limit=4&role=${selectedRole}&q=${encodeURIComponent(term)}`,
         { signal: current.signal },
       );
       if (!response.ok)
@@ -38,6 +39,30 @@ export function LiveJobsSection() {
         );
       const next: PublicJobsResponse = await response.json();
       if (current.signal.aborted) return;
+      try {
+        const ids: unknown = JSON.parse(
+          localStorage.getItem(storageKey) ?? "[]",
+        );
+        if (Array.isArray(ids)) {
+          const recovered = next.jobs.filter((job) => ids.includes(job.id));
+          if (recovered.length)
+            setSavedCards((previous) => {
+              const cards = [
+                ...new Map(
+                  [...previous, ...recovered].map((job) => [job.id, job]),
+                ).values(),
+              ];
+              try {
+                localStorage.setItem(
+                  storageKey + ":cards",
+                  JSON.stringify(cards),
+                );
+              } catch {}
+              return cards;
+            });
+        }
+      } catch {}
+
       setFeed((previous) => ({
         ...next,
         jobs:
@@ -63,7 +88,20 @@ export function LiveJobsSection() {
     let mounted = true;
     Promise.resolve().then(() => {
       if (!mounted) return;
-      void load(0, "all");
+      try {
+        const cards = JSON.parse(
+          localStorage.getItem(storageKey + ":cards") ?? "[]",
+        );
+        if (Array.isArray(cards))
+          setSavedCards(
+            cards.filter(
+              (j) =>
+                typeof j.id === "string" &&
+                typeof j.url === "string" &&
+                j.url.startsWith("https://jobs.lever.co/"),
+            ),
+          );
+      } catch {}
       try {
         const value: unknown = JSON.parse(
           localStorage.getItem(storageKey) ?? "[]",
@@ -79,13 +117,29 @@ export function LiveJobsSection() {
       controller.current?.abort();
     };
   }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!savedOnly) void load(0, role, query);
+    }, 350);
+    return () => clearTimeout(timer);
+    // load changes with input; request cancellation handles stale results.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, role, savedOnly]);
   function toggle(id: string) {
     const next = saved.includes(id)
       ? saved.filter((value) => value !== id)
       : [...saved, id];
     setSaved(next);
+    const card = feed?.jobs.find((j) => j.id === id);
+    const cards = saved.includes(id)
+      ? savedCards.filter((j) => j.id !== id)
+      : card
+        ? [...savedCards.filter((j) => j.id !== id), card]
+        : savedCards;
+    setSavedCards(cards);
     try {
       localStorage.setItem(storageKey, JSON.stringify(next));
+      localStorage.setItem(storageKey + ":cards", JSON.stringify(cards));
       setMessage(
         next.includes(id)
           ? "공고를 이 브라우저에 저장했어요."
@@ -98,9 +152,20 @@ export function LiveJobsSection() {
     }
   }
   const visible =
-    feed?.jobs.filter(
+    (savedOnly
+      ? [
+          ...new Map(
+            [
+              ...savedCards,
+              ...(feed?.jobs ?? []).filter((j) => saved.includes(j.id)),
+            ].map((j) => [j.id, j]),
+          ).values(),
+        ]
+      : (feed?.jobs ?? [])
+    ).filter(
       (job) =>
         (!savedOnly || saved.includes(job.id)) &&
+        (role === "all" || job.category === role) &&
         `${job.company} ${job.title} ${roleLabels[job.category]}`
           .toLowerCase()
           .includes(query.toLowerCase()),
@@ -153,7 +218,7 @@ export function LiveJobsSection() {
           <label>
             <Search size={17} />
             <input
-              aria-label="불러온 공고 검색"
+              aria-label="전체 연동 공고 검색"
               placeholder="회사명·직무 검색"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -165,7 +230,8 @@ export function LiveJobsSection() {
         {feed
           ? `전체 ${feed.total}개 중 ${feed.jobs.length}개 불러옴 · 최신 등록순`
           : "공식 채용 페이지에서 공고를 가져오고 있어요."}{" "}
-        · 검색과 저장 목록은 불러온 공고에 적용됩니다.
+        · 검색은 전체 연동 공고에 적용됩니다. 저장 목록은 저장 당시 정보를
+        보관합니다.
       </p>
       {!!feed?.unavailableSources.length && (
         <p role="status">
@@ -226,6 +292,12 @@ export function LiveJobsSection() {
               채용공고 원문 보기 <ExternalLink size={14} />
               <span className="sr-only"> (새 창)</span>
             </a>
+            <a
+              className="public-job-source"
+              href={`/career?tab=jobs&url=${encodeURIComponent(job.url)}`}
+            >
+              내 실제 자료와 비교하기 →
+            </a>
           </article>
         ))}
         {loading &&
@@ -238,8 +310,8 @@ export function LiveJobsSection() {
         <div className="public-job-empty">
           <h3>조건에 맞는 공고가 없어요.</h3>
           <p>
-            검색어를 바꾸거나 공고를 더 불러와 보세요. 저장한 공고는 해당 직무
-            목록을 불러온 뒤 확인할 수 있습니다.
+            검색어나 직무 필터를 바꿔보세요. 저장한 공고의 마감 여부는 원문에서
+            확인하세요.
           </p>
           <button
             onClick={() => {
@@ -286,7 +358,7 @@ export function LiveJobsSection() {
         <span>
           {feed &&
             `마지막 확인 ${new Date(feed.checkedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}`}{" "}
-          · 개인 역량 분석은 체험 데이터입니다.
+          · 내 계정에서 실제 자료와 비교할 수 있습니다.
         </span>
       </div>
       <span className="sr-only" role="status">

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { CareerProvider } from "@/components/shared/career-provider";
 import "./globals.css";
 import "./korean.css";
+import "./career.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
