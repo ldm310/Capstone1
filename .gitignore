@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local prototype verification artifacts
+/work/
+/playwright-report/
+/test-results/

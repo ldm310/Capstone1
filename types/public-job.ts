@@ -1,0 +1,19 @@
+import type { RoleId } from "./career";
+export interface PublicJob {
+  id: string;
+  company: string;
+  title: string;
+  category: RoleId;
+  location: string;
+  employment: string;
+  workplace: string | null;
+  postedAt: string | null;
+  url: string;
+}
+export interface PublicJobsResponse {
+  jobs: PublicJob[];
+  total: number;
+  nextOffset: number | null;
+  checkedAt: string;
+  unavailableSources: string[];
+}
